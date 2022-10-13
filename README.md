@@ -13,3 +13,11 @@ Some specific tasks within user tasks 1 and 2:
 	1. Recognize any stress phases where one mechanism dominates degradation and/or failures and identify the mechanism using professional judgement
 	2. Identify critical thresholds in stress conditions resulting in sudden changes in degradation or failure behaviour
 	3. Notice key differences between similar test procedures and how those differences affect test degradation or failure rates
+
+Anticipated key design challenges:
+
+	1. Displaying tests that contain information of interest in multiple time scale magnitudes
+	2. Summarizing data from many individual samples to reduce visual clutter
+	3. Visually displaying tests for comparison where procedures differ significantly
+	4. How to effectively visualize a fitted model to enable abstract user tasks
+	5. Everything related to visualizing probabilistic models
