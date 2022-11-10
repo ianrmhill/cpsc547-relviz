@@ -27,7 +27,7 @@ A visualization tool for examining wear-out reliability test data for model and 
 	3. Proposal model outputs, dependent on background/meta data values, are displayable on the data series axes on demand
 		a. Must be immediately visually distinguishable from displayed data series or statistical properties of the data series
 	4. Up to four data series axes views can be displayed simultaneously, arranged to maximize spatial "closeness" / minimize cognitive effort required to jump between viewing different axes *nice to have*
-Significant differences in background/meta data values between views can be highlighted on demand *nice to have*
+		a. Significant differences in background/meta data values between views can be highlighted on demand *nice to have*
 
 
 
