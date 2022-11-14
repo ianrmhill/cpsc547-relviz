@@ -19,7 +19,7 @@ A visualization tool for examining wear-out reliability test data for model and 
 	1. Must display multiple data series against time
 		a. Up to five sets of data series can be visualized on the same axes
 		b. Can focus on multiple time scales of interest on demand
-		c. Data series must be individually viewable
+		c. Up to 1000 data series must be individually viewable simultaneously
 		d. Statistical properties of sets of data series can be overlaid or substituted for raw data on demand *nice to have*
 		e. Provide automated classification of data series into groupings by similarity *nice to have*
 	2. Background/meta data is displayed alongside data series to maximize spatial "closeness" / minimize cognitive effort required to jump between viewing data series and meta data values
