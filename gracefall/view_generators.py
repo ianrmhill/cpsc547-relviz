@@ -11,49 +11,49 @@ def gen_plot_view(deg_data, time_sel):
     deg_data['sample #'] = deg_data.index
     deg_data = deg_data.reset_index()
 
+    # Setup averaging selector
+    agg_bind = altair.binding_select(options=['None', 'Global', 'Lot', 'Chip'], name='Averaging Mode')
+    agg_sel = altair.selection_single(fields=['aggtype'], bind=agg_bind)
+
     # Setup series selection boxes
     lots = [lot for lot in deg_data['lot #'].unique()]
     chps = [chp for chp in deg_data['device #'].unique()]
-    #lot_filter = altair.binding_select(options=[None] + lots,
-    #                                   labels=['All'] + [str(lot) for lot in lots], name='Sample Lot')
-    #chp_filter = altair.binding_select(options=[None] + chps,
-    #                                   labels=['All'] + [str(chp) for chp in chps], name='Sample Chip')
-    #select_lot = altair.selection_single(fields=['lot #'], bind=lot_filter)
     lot_sel = altair.selection_multi(fields=['lot #'])
-    #select_chp = altair.selection_single(fields=['device #'], bind=chp_filter)
     chp_sel = altair.selection_multi(fields=['device #'])
 
     # Set up the colouring for the data series based on lot number
-    # The selection dropdown makes unselected series transparent
-    #series_colour = altair.condition(lot_sel & chp_sel,
-    #                                 altair.Color('lot #:N', legend=None), altair.value('transparent'))
-    lot_colour = altair.condition(lot_sel, altair.Color('lot #:N', legend=None), altair.value('lightgrey'))
-    chp_hue = altair.condition(lot_sel, altair.Color('lot #:N', legend=None), altair.value('lightgrey'))
+    lot_colour = altair.condition(lot_sel, altair.Color('lot #:N', scale=altair.Scale(scheme='plasma'), legend=None), altair.value('lightgrey'))
+    chp_saturation = altair.condition(chp_sel, altair.value('black'), altair.value('lightgrey'))
 
-    # Set up legend selector chart
-    lot_leg = altair.Chart(deg_data).mark_point().encode(
-        y=altair.Y('lot #', axis=altair.Axis(orient='right')),
+    # Set up legend selector charts for lots and chips
+    lot_leg = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_point(size=400, filled=True).encode(
+        y=altair.Y('lot #', axis=altair.Axis(orient='right', tickCount=len(lots), grid=False), title='Lot Filter'),
         color=lot_colour
     ).add_selection(
         lot_sel
-    )
-    chp_leg = altair.Chart(deg_data).mark_point().encode(
-        y=altair.Y('device #', axis=altair.Axis(orient='right'))
+    ).properties()
+    chp_leg = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_point(size=400, filled=True).encode(
+        y=altair.Y('device #', axis=altair.Axis(orient='right', tickCount=len(chps), grid=False), title='Chip Filter'),
+        color=chp_saturation
     ).add_selection(
         chp_sel
     )
 
     # Define the full chart view
+    #view = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_line().encode(
     view = altair.Chart(deg_data).mark_line().encode(
         x=altair.X('time', title='Time', scale=altair.Scale(domain=time_sel)),
         y='measured',
-        detail='sample #',
+        detail='sample #', # Has to be a non-existent column for all series to display individually
         color=lot_colour
-    ).add_selection(lot_sel, chp_sel).transform_filter(lot_sel).transform_filter(chp_sel).properties(
+    ).add_selection(lot_sel, chp_sel, agg_sel).\
+        transform_filter(lot_sel).transform_filter(chp_sel).transform_filter(agg_sel).properties(
         height=400, width=1000)
 
+    # Assemble the chart with the legends
     legends = lot_leg | chp_leg
     return view | legends
+
 
 
 def gen_time_hint_view(measurements):

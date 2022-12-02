@@ -5,6 +5,7 @@ import altair
 from gracefall.dataloader import load_gerabaldi_report
 from gracefall.view_generators import *
 from gracefall.view_arrangers import *
+from gracefall.data_processors import *
 
 
 def main():
@@ -15,6 +16,10 @@ def main():
     filename = '../sample_data/amp_gain_test_compare/curr_ramp_test_report.json'
     # Note that the measurements dataframe is always in 'long-form' format
     test_data = load_gerabaldi_report(filename)
+
+    # Altair/Vega-Lite has very restricted support for interactivity, so we have to compute aggregate statistics
+    # manually then create an additional column to distinguish whether a given series is an aggregate stat or not
+    test_data = inject_aggregate_stats(test_data)
 
     # Now to begin visualizing!
     print(f"Generating visualization for {test_data['Test Name']}")
@@ -38,8 +43,6 @@ def main():
 
     # Next arrange multiple test views for comparison if needed
     full_view = arrange_test_views(test_view)
-
-    # Now arrange multiple tests for comparison
 
     # Finally, display the visualization
     full_view.show()
