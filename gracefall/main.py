@@ -21,12 +21,11 @@ def main():
 
     # May need to arrange multiple tests for comparison
     for test in tests:
-        # First we generate the time series plot for the test
-        test_plot = gen_plot_view(test_data['Measurements'])
-
-        # Next construct the squeeze view for the full time interval hint bar
+        # First construct the squeeze view for the full time interval hint bar
         time_squeeze, intrvl_sel = gen_time_hint_view(test_data['Measurements'])
-        test_plot = test_plot.encode(altair.X('time', scale=altair.Scale(domain=intrvl_sel)))
+
+        # Next we generate the time series plot for the test
+        test_plot = gen_plot_view(test_data['Measurements'], intrvl_sel)
 
         # Now for the stress summary cloud plots synchronized with the time series plot on the time axis
         strs_info = gen_strs_view(test_data['Stress Summary'], intrvl_sel)
