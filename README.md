@@ -51,3 +51,15 @@ Anticipated key design challenges:
 	3. Visually displaying tests for comparison where procedures differ significantly
 	4. How to effectively visualize a fitted model to enable abstract user tasks
 	5. Everything related to visualizing probabilistic models
+
+
+# Setup instructions
+For developement, do:
+```
+pip install -e .
+```
+
+For a quick run, go into ./gracefall and run
+```
+python main.py
+```
