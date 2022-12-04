@@ -4,7 +4,4 @@ viz_venv/
 /__pycache__
 *.pyc 
 
-dependency_links.txt
-PKG-INFO
-SOURCES.txt 
-top_level.txt
+gracefall.egg-info/*
