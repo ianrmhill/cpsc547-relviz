@@ -24,22 +24,25 @@ def main():
     # Now to begin visualizing!
     print(f"Generating visualization for {test_data['Test Name']}")
 
+    # Components each graphs; for aligning PCA selection
+    components = {}
+
     # May need to arrange multiple tests for comparison
     for test in tests:
         # First construct the squeeze view for the full time interval hint bar
         time_squeeze, intrvl_sel = gen_time_hint_view(test_data['Measurements'])
 
         # Next we generate the time series plot for the test
-        test_plot = gen_plot_view(test_data['Measurements'], intrvl_sel)
+        test_plot = gen_plot_view(test_data['Measurements'], intrvl_sel, components)
 
         # Now for the stress summary cloud plots synchronized with the time series plot on the time axis
         strs_info = gen_strs_view(test_data['Stress Summary'], intrvl_sel)
 
         # Next construct the PCA plot that can be swapped in instead of the time-series views
-        pca_plot = gen_pca_view(test_data['Measurements'])
+        pca_plot = gen_pca_view(test_data['Measurements'], components)
 
         # Layer/place the component views to build out the full test view
-        test_view = assemble_test_view(test_plot, strs_info, time_squeeze)
+        test_view = assemble_test_view(test_plot, strs_info, time_squeeze, pca_plot)
 
     # Next arrange multiple test views for comparison if needed
     full_view = arrange_test_views(test_view)
