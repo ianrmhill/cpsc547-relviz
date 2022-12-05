@@ -1,11 +1,12 @@
 """Generator functions that produce the Altair chart objects."""
 
 import altair
+from .pca_view_utils import create_table
 
 __all__ = ['gen_plot_view', 'gen_strs_view', 'gen_time_hint_view', 'gen_pca_view']
 
 
-def gen_plot_view(deg_data, time_sel):
+def gen_plot_view(deg_data, time_sel, components = None):
     # Setup multi-index ID column
     deg_data = deg_data.set_index(['param', 'circuit #', 'device #', 'lot #'])
     deg_data['sample #'] = deg_data.index
@@ -49,6 +50,11 @@ def gen_plot_view(deg_data, time_sel):
     ).add_selection(lot_sel, chp_sel, agg_sel).\
         transform_filter(lot_sel).transform_filter(chp_sel).transform_filter(agg_sel).properties(
         height=400, width=1000)
+
+    if not (components is None):
+        components["lot_sel"] = lot_sel
+        components["chp_sel"] = chp_sel
+        components["lot_colour"] = lot_colour
 
     # Assemble the chart with the legends
     legends = lot_leg | chp_leg
@@ -104,6 +110,31 @@ def gen_strs_view(strs_data, time_selector):
     return altair.vconcat(*views, spacing=2)
 
 
-def gen_pca_view(measurements):
-    # TODO
-    pass
+def gen_pca_view(ms, components):
+    ms = ms.set_index(['param', 'circuit #', 'device #', 'lot #'])
+    ms['sample #'] = ms.index
+    ms = ms.reset_index()
+    
+    # format into altair friendly table
+    table = create_table(ms)
+
+    # area_chart = altair.Chart(table).mark_point(size=400, opacity=0.3, filled=True).encode(
+    #     x="x",
+    #     y="y",
+    #     color="k_class:N"
+    # )
+
+    pnt_chart = altair.Chart(table).mark_point(filled=True).encode(
+        x="x",
+        y="y",
+        color=components["lot_colour"]
+    )
+
+    pca_plot = pnt_chart # + area_chart
+    pca_plot.add_selection(
+        components["lot_sel"],
+        components["chp_sel"]
+    )
+
+    return pca_plot
+    
