@@ -4,23 +4,29 @@ import numpy as np
 import pandas as pd
 
 def seperate_ts(ms):
-    t_series = {"circuit #": [],#df["cicuit #"][0], 
-                "device #": [],#df["device #"][0], 
+    t_series = {"circuit #": [],
+                "device #": [],
                 "lot #": [],
-                "sample #":[] } #df["measured"].to_numpy()}
+                "sample #":[],
+                "aggtype":[] } 
+    
+    # treat t_id key to individual time series; filter by them get 1 time series
     for t_id in ms["sample #"].unique():
-        df = ms[t_id == ms["sample #"]]
-        df = df[df.aggtype == "None"]
-        assert df.time.unique().shape[0] == len(df)
+        df_ori = ms[t_id == ms["sample #"]]
+        for aggtype in df_ori.aggtype.unique():
+            df = df_ori[df_ori.aggtype == aggtype]
+            assert df.time.unique().shape[0] == len(df)
 
-        t_series["circuit #"].append(df["circuit #"].iloc[0])
-        t_series["device #"].append(df["device #"].iloc[0])
-        t_series["lot #"].append(df["lot #"].iloc[0])
-        t_series["sample #"].append(df["sample #"].iloc[0])
-        if t_series.get("measured") is None:
-            t_series['measured'] = df['measured'].to_numpy()[None]
-        else:
-            t_series["measured"] = np.concatenate([t_series["measured"], df["measured"].to_numpy()[None]])            
+            t_series["circuit #"].append(df["circuit #"].iloc[0])
+            t_series["device #"].append(df["device #"].iloc[0])
+            t_series["lot #"].append(df["lot #"].iloc[0])
+            t_series["sample #"].append(df["sample #"].iloc[0])
+            t_series["aggtype"].append(df["aggtype"].iloc[0])
+
+            if t_series.get("measured") is None:
+                t_series['measured'] = df['measured'].to_numpy()[None]
+            else:
+                t_series["measured"] = np.concatenate([t_series["measured"], df["measured"].to_numpy()[None]])            
     
     return t_series
 
@@ -30,7 +36,7 @@ def create_table(ms):
     t_np = t_series["measured"]
     t_np = np.concatenate([t_np, np.diff(t_np)], axis = -1) # add difference as features
 
-    # create 2d loc
+    # create 2d position
     pca = PCA(2)
     pca.fit(t_np)
     t_xy = pca.transform(t_np)

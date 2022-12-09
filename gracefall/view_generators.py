@@ -54,6 +54,7 @@ def gen_plot_view(deg_data, time_sel, components = None):
     if not (components is None):
         components["lot_sel"] = lot_sel
         components["chp_sel"] = chp_sel
+        components["agg_sel"] = agg_sel
         components["lot_colour"] = lot_colour
 
     # Assemble the chart with the legends
@@ -133,8 +134,9 @@ def gen_pca_view(ms, components):
     pca_plot = pnt_chart # + area_chart
     pca_plot.add_selection(
         components["lot_sel"],
-        components["chp_sel"]
-    )
+        components["chp_sel"],
+        components["agg_sel"]
+    ).transform_filter(components["agg_sel"])
 
     return pca_plot
     
