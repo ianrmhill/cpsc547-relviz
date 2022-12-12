@@ -1,7 +1,7 @@
 """Generator functions that produce the Altair chart objects."""
 
 import altair
-from .pca_view_utils import create_table
+from .pca_view_utils import create_table, seperate_ts
 
 __all__ = ['gen_plot_view', 'gen_strs_view', 'gen_time_hint_view', 'gen_pca_view']
 
@@ -15,6 +15,11 @@ def gen_plot_view(deg_data, time_sel, components = None):
     # Setup averaging selector
     agg_bind = altair.binding_select(options=['None', 'Global', 'Lot', 'Chip'], name='Averaging Mode')
     agg_sel = altair.selection_single(fields=['aggtype'], bind=agg_bind)
+
+    # PCA selector
+    seperate_ts(deg_data, set_idx=True) # give label to each time series
+    multi_sel = altair.selection_multi(fields=['t_idx'])
+    multi_opc = altair.condition(multi_sel,  altair.value(6.0), altair.value(4))
 
     # Setup series selection boxes
     lots = [lot for lot in deg_data['lot #'].unique()]
@@ -46,8 +51,13 @@ def gen_plot_view(deg_data, time_sel, components = None):
         x=altair.X('time', title='Time', scale=altair.Scale(domain=time_sel)),
         y='measured',
         detail='sample #', # Has to be a non-existent column for all series to display individually
-        color=lot_colour
-    ).add_selection(lot_sel, chp_sel, agg_sel).\
+        color=lot_colour,
+        size=multi_opc
+    ).add_selection(lot_sel, 
+                    chp_sel, 
+                    agg_sel, 
+                    multi_sel
+                    ).\
         transform_filter(lot_sel).transform_filter(chp_sel).transform_filter(agg_sel).properties(
         height=400, width=1000)
 
@@ -56,6 +66,8 @@ def gen_plot_view(deg_data, time_sel, components = None):
         components["chp_sel"] = chp_sel
         components["agg_sel"] = agg_sel
         components["lot_colour"] = lot_colour
+        components["multi_sel"] = multi_sel
+        components["multi_opc"] = multi_opc
 
     # Assemble the chart with the legends
     legends = lot_leg | chp_leg
@@ -128,14 +140,16 @@ def gen_pca_view(ms, components):
     pnt_chart = altair.Chart(table).mark_point(filled=True).encode(
         x="x",
         y="y",
-        color=components["lot_colour"]
+        color=components["lot_colour"],
+        size=components["multi_opc"]
     )
 
     pca_plot = pnt_chart # + area_chart
     pca_plot.add_selection(
         components["lot_sel"],
         components["chp_sel"],
-        components["agg_sel"]
+        components["agg_sel"],
+        components["multi_sel"]
     ).transform_filter(components["agg_sel"])
 
     return pca_plot

@@ -3,40 +3,56 @@ from sklearn.cluster import KMeans
 import numpy as np
 import pandas as pd
 
-def seperate_ts(ms):
+def seperate_ts(ms, set_idx = False):
+    """
+    ms (Dataframe)
+    set_idx (bool): if true, create a "t_idx" labeling each respective elements
+    """
     t_series = {"circuit #": [],
                 "device #": [],
                 "lot #": [],
                 "sample #":[],
-                "aggtype":[] } 
+                "aggtype":[],
+                "t_idx":[] } 
+    t_idx = 0
+    if set_idx:
+        ms["t_idx"] = np.ones(len(ms))
     
     # treat t_id key to individual time series; filter by them get 1 time series
     for t_id in ms["sample #"].unique():
-        df_ori = ms[t_id == ms["sample #"]]
+        cond1 = t_id == ms["sample #"]
+        df_ori = ms[cond1]
         for aggtype in df_ori.aggtype.unique():
-            df = df_ori[df_ori.aggtype == aggtype]
-            assert df.time.unique().shape[0] == len(df)
-
-            t_series["circuit #"].append(df["circuit #"].iloc[0])
-            t_series["device #"].append(df["device #"].iloc[0])
-            t_series["lot #"].append(df["lot #"].iloc[0])
-            t_series["sample #"].append(df["sample #"].iloc[0])
-            t_series["aggtype"].append(df["aggtype"].iloc[0])
-
-            if t_series.get("measured") is None:
-                t_series['measured'] = df['measured'].to_numpy()[None]
+            cond2 = df_ori.aggtype == aggtype
+            if set_idx:
+                ms.loc[cond1 & cond2, "t_idx"] = t_idx 
             else:
-                t_series["measured"] = np.concatenate([t_series["measured"], df["measured"].to_numpy()[None]])            
-    
+                df = df_ori[cond2]
+                assert df.time.unique().shape[0] == len(df)
+
+                t_series["circuit #"].append(df["circuit #"].iloc[0])
+                t_series["device #"].append(df["device #"].iloc[0])
+                t_series["lot #"].append(df["lot #"].iloc[0])
+                t_series["sample #"].append(df["sample #"].iloc[0])
+                t_series["aggtype"].append(df["aggtype"].iloc[0])
+                t_series["t_idx"].append(t_idx)
+
+                if t_series.get("measured") is None:
+                    t_series['measured'] = df['measured'].to_numpy()[None]
+                else:
+                    t_series["measured"] = np.concatenate([t_series["measured"], df["measured"].to_numpy()[None]])            
+            t_idx += 1
+    if set_idx:
+        return
     return t_series
 
 def create_table(ms):
     t_series = seperate_ts(ms)
 
-    t_np = t_series["measured"]
+    t_np = t_series["measured"] # get the time series; shape = (n_time_series, n_points_per_series)
     t_np = np.concatenate([t_np, np.diff(t_np)], axis = -1) # add difference as features
 
-    # create 2d position
+    # create 2d position for each time series
     pca = PCA(2)
     pca.fit(t_np)
     t_xy = pca.transform(t_np)
