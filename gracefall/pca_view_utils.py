@@ -4,6 +4,12 @@ import numpy as np
 import pandas as pd
 
 def seperate_ts(ms):
+    """
+    input:
+        ms (DataFrame): time series to seperate
+    ouput:
+        t_series (dict): a dict of with seperated time series. where t_series[k][i] referes to the ith time series
+    """
     t_series = {"circuit #": [],
                 "device #": [],
                 "lot #": [],
@@ -33,10 +39,10 @@ def seperate_ts(ms):
 def create_table(ms):
     t_series = seperate_ts(ms)
 
-    t_np = t_series["measured"]
+    t_np = t_series["measured"] # get the time series; shape = (n_time_series, n_points_per_series)
     t_np = np.concatenate([t_np, np.diff(t_np)], axis = -1) # add difference as features
 
-    # create 2d position
+    # create 2d position for each time series
     pca = PCA(2)
     pca.fit(t_np)
     t_xy = pca.transform(t_np)
