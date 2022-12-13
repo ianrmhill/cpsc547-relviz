@@ -36,6 +36,7 @@ def seperate_ts(ms):
     
     return t_series
 
+
 def create_table(ms):
     t_series = seperate_ts(ms)
 
