@@ -49,8 +49,8 @@ def create_table(ms):
     t_xy = pca.transform(t_np)
 
     # create class for each time series
-    kmeans = KMeans(n_clusters=5).fit(t_xy)
-    t_cs = kmeans.predict(t_xy)
+    # kmeans = KMeans(n_clusters=5).fit(t_xy)
+    # t_cs = kmeans.predict(t_xy)
 
     # create structured table for altair
     del t_series["measured"]
