@@ -13,7 +13,9 @@ def main():
     tests = ['curr_ramp_test']
 
     # First load the test data
-    filename = '../sample_data/amp_gain_test_compare/curr_ramp_test_report.json'
+    #filename = '../sample_data/amp_gain_test_compare/curr_ramp_test_report.json'
+    #filename = '../sample_data/standalone_tests/threshold_resistance_test_report.json'
+    filename = '../sample_data/standalone_tests/erosion_test_report.json'
     # Note that the measurements dataframe is always in 'long-form' format
     test_data = load_gerabaldi_report(filename)
 
@@ -42,10 +44,15 @@ def main():
     altair.themes.register('gracefall', gracefall_theme)
     altair.themes.enable('gracefall')
 
-
+    # Setup parameter selector
+    prm_bind = altair.binding_select(options=test_data['Measurements']['param'].unique(), name='Parameter to View')
+    prm_sel = altair.selection_single(fields=['param'], bind=prm_bind)
+    # Setup averaging selector
+    agg_bind = altair.binding_select(options=['None', 'Global', 'Lot', 'Chip'], name='Averaging Mode')
+    agg_sel = altair.selection_single(fields=['aggtype'], bind=agg_bind)
 
     # Components each graphs; for aligning PCA selection
-    selectors = {}
+    selectors = {'prm': prm_sel, 'agg': agg_sel}
 
     # May need to arrange multiple tests for comparison
     for test in tests:

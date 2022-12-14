@@ -10,11 +10,12 @@ def seperate_ts(ms):
     ouput:
         t_series (dict): a dict of with seperated time series. where t_series[k][i] referes to the ith time series
     """
-    t_series = {"circuit #": [],
+    t_series = {'param': [],
+                "circuit #": [],
                 "device #": [],
                 "lot #": [],
                 "sample #":[],
-                "aggtype":[] } 
+                "aggtype":[]}
     
     # treat t_id key to individual time series; filter by them get 1 time series
     for t_id in ms["sample #"].unique():
@@ -23,6 +24,7 @@ def seperate_ts(ms):
             df = df_ori[df_ori.aggtype == aggtype]
             assert df.time.unique().shape[0] == len(df)
 
+            t_series['param'].append(df['param'].iloc[0])
             t_series["circuit #"].append(df["circuit #"].iloc[0])
             t_series["device #"].append(df["device #"].iloc[0])
             t_series["lot #"].append(df["lot #"].iloc[0])
