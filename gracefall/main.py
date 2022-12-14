@@ -13,9 +13,10 @@ def main():
     tests = ['curr_ramp_test']
 
     # First load the test data
-    #filename = '../sample_data/amp_gain_test_compare/curr_ramp_test_report.json'
-    #filename = '../sample_data/standalone_tests/threshold_resistance_test_report.json'
-    filename = '../sample_data/standalone_tests/erosion_test_report.json'
+    #filename = '../sample_data/curr_ramp_test_report.json'
+    filename = '../sample_data/threshold_resistance_test_report.json'
+    #filename = '../sample_data/erosion_test_report.json'
+
     # Note that the measurements dataframe is always in 'long-form' format
     test_data = load_gerabaldi_report(filename)
 
@@ -26,6 +27,7 @@ def main():
     # Setup multi-index ID column
     deg_data = test_data['Measurements'].set_index(['param', 'circuit #', 'device #', 'lot #'])
     deg_data['sample #'] = deg_data.index
+    deg_data['sample #'] = deg_data['sample #'].astype('string')
     test_data['Measurements'] = deg_data.reset_index()
 
     # Now to begin visualizing!
@@ -73,6 +75,7 @@ def main():
 
     # Next arrange multiple test views for comparison if needed
     full_view = arrange_test_views(test_view)
+    full_view = full_view.properties(title='Gracefall Wear-Out Visualizer').configure_title(fontSize=22, anchor='middle')
 
     # Debug
     #print(full_view.to_dict())

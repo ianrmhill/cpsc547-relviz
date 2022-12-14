@@ -11,7 +11,7 @@ def inject_aggregate_stats(test_data):
     """
     data = test_data['Measurements']
     data['aggtype'] = 'None'
-    # First construct global level
+    # Averaging must be conducted on a per parameter type basis
     for prm in data['param'].unique():
         to_agg = data.loc[data['param'] == prm]
         for instant in data['time'].unique():

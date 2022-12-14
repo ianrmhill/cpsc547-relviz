@@ -13,6 +13,10 @@ def gen_plot_view(deg_data, selectors=None):
     lot_sel = altair.selection_multi(fields=['lot #'])
     chp_sel = altair.selection_multi(fields=['device #'])
 
+    # Single series selection box
+    item_sel = altair.selection_single(on='mouseover', empty='none', fields=['sample #'])
+    line_size = altair.condition(item_sel, altair.value(10), altair.value(2))
+
     # Set up the colouring for the data series based on lot number
     if len(lots) > 1:
         lot_colour = altair.condition(lot_sel, altair.Color('lot #:N', scale=altair.Scale(scheme='viridis'), legend=None), altair.value('lightgrey'))
@@ -20,7 +24,7 @@ def gen_plot_view(deg_data, selectors=None):
     else:
         chp_colour = altair.condition(chp_sel, altair.Color('device #:N', scale=altair.Scale(scheme='viridis'), legend=None), altair.value('lightgrey'))
         lot_colour = altair.condition(lot_sel, altair.value('black'), altair.value('lightgrey'))
-
+    colourer = lot_colour if len(lots) > 1 else chp_colour
 
     # Set up legend selector charts for lots and chips
     lot_leg = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_point(size=400, filled=True).encode(
@@ -41,20 +45,22 @@ def gen_plot_view(deg_data, selectors=None):
     #view = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_line().encode(
     view = altair.Chart(deg_data).mark_line().encode(
         x=altair.X('time', title='Time (hours)', scale=altair.Scale(domain=selectors['interval'])),
-        y=altair.Y('measured', title='Param Value'),
+        y=altair.Y('measured', title='Parameter Value', scale=altair.Scale(zero=False)),
         detail='sample #', # Has to be a non-existent column for all series to display individually
-        color=lot_colour if len(lots) > 1 else chp_colour
-    ).add_selection(lot_sel, chp_sel, selectors['agg'], selectors['prm']).\
+        color=colourer,
+        size=line_size
+    ).add_selection(lot_sel, chp_sel, selectors['agg'], selectors['prm'], item_sel).\
         transform_filter(lot_sel).transform_filter(chp_sel).transform_filter(selectors['agg']).transform_filter(selectors['prm']).properties(
         height=400, width=1000)
 
     if selectors is not None:
         selectors['lot'] = lot_sel
         selectors['chp'] = chp_sel
-        selectors['colour'] = lot_colour if len(lots) > 1 else chp_colour
+        selectors['colour'] = colourer
+        selectors['item'] = item_sel
 
     # Assemble the chart with the legends
-    legends = lot_leg | chp_leg
+    legends = lot_leg & chp_leg
     return view | legends
 
 
@@ -67,8 +73,9 @@ def gen_time_hint_view(measurements, selectors):
     # Generate the hint view plot, we want to only display a single series or two to avoid visual clutter
     # Just give the user a general trend that makes it clear what they will be selecting
     hint_view = altair.Chart(measurements).mark_line(color='black').encode(
-        x=altair.X('time', title='', axis=altair.Axis(grid=False)),
-        y=altair.Y('measured', aggregate='average', axis=altair.Axis(labels=False, tickCount=0, grid=False), title=''),
+        x=altair.X('time', title='', axis=altair.Axis(grid=False, tickCount=0)),
+        y=altair.Y('measured', aggregate='average', axis=altair.Axis(labels=False, tickCount=0, grid=False),
+                   title='', scale=altair.Scale(zero=False)),
         detail='param'
     ).add_selection(
         time_intrvl,
@@ -88,7 +95,7 @@ def gen_strs_view(strs_data, selectors):
         raise UserWarning(f"Test contains more than three stress conditions, "
                           f"only visualizing {conditions[0]}, {conditions[1]}, and {conditions[2]}.")
 
-    color_def = {'temp': 'firebrick', 'vdd': '#d1c92e', 'voltage': '#d1c92e',
+    color_def = {'temp': 'firebrick', 'vdd': '#228a78', 'voltage': '#228a78',
                  'humidity': '#2a3954', 'pressure': 'purple', 'tau': '#452f17'}
     views = []
     for cond in conditions:
@@ -116,6 +123,7 @@ def gen_pca_view(ms, selectors):
 
     # Format into altair friendly table
     pca_data = create_table(ms)
+    item_size = altair.condition(selectors['item'], altair.value(400), altair.value(100))
 
     # Setup up an area selection for the pca plot
     zoom_sel = altair.selection_interval(bind='scales')
@@ -124,12 +132,14 @@ def gen_pca_view(ms, selectors):
         x=altair.X('x', title=''),
         y=altair.Y('y', title=''),
         detail='sample #',
-        color=selectors['colour']
+        color=selectors['colour'],
+        size=item_size
     ).add_selection(
         selectors['lot'],
         selectors['chp'],
         selectors['agg'],
         selectors['prm'],
+        selectors['item'],
         zoom_sel
     ).transform_filter(selectors['lot']).transform_filter(selectors['chp']).transform_filter(selectors['agg']
     ).transform_filter(selectors['prm']).properties(height=400, width=400)

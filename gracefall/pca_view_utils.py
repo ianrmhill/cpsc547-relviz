@@ -1,5 +1,4 @@
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
 import numpy as np
 import pandas as pd
 
@@ -7,7 +6,7 @@ def seperate_ts(ms):
     """
     input:
         ms (DataFrame): time series to seperate
-    ouput:
+    output:
         t_series (dict): a dict of with seperated time series. where t_series[k][i] referes to the ith time series
     """
     t_series = {'param': [],
@@ -40,31 +39,32 @@ def seperate_ts(ms):
 
 
 def create_table(ms):
-    t_series = seperate_ts(ms)
+    df = None
 
-    t_np = t_series["measured"] # get the time series; shape = (n_time_series, n_points_per_series)
-    t_np = np.concatenate([t_np, np.diff(t_np)], axis = -1) # add difference as features
+    for prm in ms['param'].unique():
+        t_series = seperate_ts(ms.loc[ms['param'] == prm])
+        t_np = {}
+        t_np = t_series["measured"] # get the time series; shape = (n_time_series, n_points_per_series)
+        t_np = np.concatenate([t_np, np.diff(t_np)], axis=-1) # add difference as features
 
-    # create 2d position for each time series
-    pca = PCA(2)
-    pca.fit(t_np)
-    t_xy = pca.transform(t_np)
+        # create 2d position for each time series
+        pca = PCA(2)
+        pca.fit(t_np)
+        t_xy = pca.transform(t_np)
 
-    # create class for each time series
-    # kmeans = KMeans(n_clusters=5).fit(t_xy)
-    # t_cs = kmeans.predict(t_xy)
+        # create structured table for altair
+        del t_series["measured"]
+        t_series["x"] = []
+        t_series["y"] = []
 
-    # create structured table for altair
-    del t_series["measured"]
-    t_series["x"] = []
-    t_series["y"] = []
-    # t_series["k_class"] = []
+        # for pos, kc in zip(t_xy):#, t_cs):
+        for pos in t_xy:
+            x, y = pos
+            t_series["x"].append(x)
+            t_series["y"].append(y)
+        if df is None:
+            df = pd.DataFrame(t_series)
+        else:
+            df = pd.concat((df, pd.DataFrame(t_series)), axis=0)
 
-    # for pos, kc in zip(t_xy):#, t_cs):
-    for pos in t_xy:
-        x, y = pos 
-        t_series["x"].append(x)
-        t_series["y"].append(y)
-        # t_series["k_class"].append(kc)
-    
-    return pd.DataFrame(t_series)
+    return df
