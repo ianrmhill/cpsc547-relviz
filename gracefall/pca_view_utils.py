@@ -58,7 +58,8 @@ def create_table(ms):
     t_series["y"] = []
     # t_series["k_class"] = []
 
-    for pos, kc in zip(t_xy):#, t_cs):
+    # for pos, kc in zip(t_xy):#, t_cs):
+    for pos in t_xy:
         x, y = pos 
         t_series["x"].append(x)
         t_series["y"].append(y)
