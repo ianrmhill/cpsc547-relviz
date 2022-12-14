@@ -56,12 +56,12 @@ def create_table(ms):
     del t_series["measured"]
     t_series["x"] = []
     t_series["y"] = []
-    t_series["k_class"] = []
+    # t_series["k_class"] = []
 
-    for pos, kc in zip(t_xy, t_cs):
+    for pos, kc in zip(t_xy):#, t_cs):
         x, y = pos 
         t_series["x"].append(x)
         t_series["y"].append(y)
-        t_series["k_class"].append(kc)
+        # t_series["k_class"].append(kc)
     
     return pd.DataFrame(t_series)
