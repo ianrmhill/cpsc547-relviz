@@ -18,21 +18,21 @@ def inject_aggregate_stats(test_data):
             # First calculate global level
             sub1 = to_agg.loc[to_agg['time'] == instant]
             avg, min, max = sub1['measured'].mean(), sub1['measured'].min(), sub1['measured'].max()
-            to_add = pd.Series({'aggtype': 'Global', 'param': prm, 'circuit #': 0, 'device #': 0, 'lot #': 0,
+            to_add = pd.Series({'aggtype': 'Global', 'param': prm, 'device #': 0, 'chip #': 0, 'lot #': 0,
                                 'time': instant, 'measured': avg})
             data = pd.concat([data, to_add.to_frame().T], ignore_index=True)
             # Now for each lot
             for lot in sub1['lot #'].unique():
                 sub2 = sub1.loc[sub1['lot #'] == lot]
                 avg = sub2['measured'].mean()
-                to_add = pd.Series({'aggtype': 'Lot', 'param': prm, 'circuit #': 0, 'device #': 0, 'lot #': lot,
+                to_add = pd.Series({'aggtype': 'Lot', 'param': prm, 'device #': 0, 'chip #': 0, 'lot #': lot,
                                     'time': instant, 'measured': avg})
                 data = pd.concat([data, to_add.to_frame().T], ignore_index=True)
                 # Finally chip level
-                for chp in sub2['device #'].unique():
-                    sub3 = sub2.loc[sub2['device #'] == chp]
+                for chp in sub2['chip #'].unique():
+                    sub3 = sub2.loc[sub2['chip #'] == chp]
                     avg = sub3['measured'].mean()
-                    to_add = pd.Series({'aggtype': 'Chip', 'param': prm, 'circuit #': 0, 'device #': chp, 'lot #': lot,
+                    to_add = pd.Series({'aggtype': 'Chip', 'param': prm, 'device #': 0, 'chip #': chp, 'lot #': lot,
                                         'time': instant, 'measured': avg})
                     data = pd.concat([data, to_add.to_frame().T], ignore_index=True)
 

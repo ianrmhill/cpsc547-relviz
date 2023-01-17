@@ -9,9 +9,9 @@ __all__ = ['gen_plot_view', 'gen_strs_view', 'gen_time_hint_view', 'gen_pca_view
 def gen_plot_view(deg_data, selectors=None):
     # Setup series selection boxes
     lots = [lot for lot in deg_data['lot #'].unique()]
-    chps = [chp for chp in deg_data['device #'].unique()]
+    chps = [chp for chp in deg_data['chip #'].unique()]
     lot_sel = altair.selection_multi(fields=['lot #'])
-    chp_sel = altair.selection_multi(fields=['device #'])
+    chp_sel = altair.selection_multi(fields=['chip #'])
 
     # Single series selection box
     item_sel = altair.selection_single(on='mouseover', empty='none', fields=['sample #'])
@@ -22,7 +22,7 @@ def gen_plot_view(deg_data, selectors=None):
         lot_colour = altair.condition(lot_sel, altair.Color('lot #:N', scale=altair.Scale(scheme='viridis'), legend=None), altair.value('lightgrey'))
         chp_colour = altair.condition(chp_sel, altair.value('black'), altair.value('lightgrey'))
     else:
-        chp_colour = altair.condition(chp_sel, altair.Color('device #:N', scale=altair.Scale(scheme='viridis'), legend=None), altair.value('lightgrey'))
+        chp_colour = altair.condition(chp_sel, altair.Color('chip #:N', scale=altair.Scale(scheme='viridis'), legend=None), altair.value('lightgrey'))
         lot_colour = altair.condition(lot_sel, altair.value('black'), altair.value('lightgrey'))
     colourer = lot_colour if len(lots) > 1 else chp_colour
 
@@ -35,7 +35,7 @@ def gen_plot_view(deg_data, selectors=None):
     ).properties(view={'fill': '#B0B0B0'})
 
     chp_leg = altair.Chart(deg_data.loc[deg_data['aggtype'] == 'None']).mark_point(size=400, filled=True).encode(
-        y=altair.Y('device #', axis=altair.Axis(orient='right', tickCount=len(chps), grid=False), title='Chip Filter'),
+        y=altair.Y('chip #', axis=altair.Axis(orient='right', tickCount=len(chps), grid=False), title='Chip Filter'),
         color=chp_colour
     ).add_selection(
         chp_sel

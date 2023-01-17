@@ -14,8 +14,9 @@ def main():
 
     # First load the test data
     #filename = '../sample_data/curr_ramp_test_report.json'
-    filename = '../sample_data/threshold_resistance_test_report.json'
+    #filename = '../sample_data/threshold_resistance_test_report.json'
     #filename = '../sample_data/erosion_test_report.json'
+    filename = '../sample_data/fpga_sample_test.json'
 
     # Note that the measurements dataframe is always in 'long-form' format
     test_data = load_gerabaldi_report(filename)
@@ -25,7 +26,7 @@ def main():
     test_data = inject_aggregate_stats(test_data)
 
     # Setup multi-index ID column
-    deg_data = test_data['Measurements'].set_index(['param', 'circuit #', 'device #', 'lot #'])
+    deg_data = test_data['Measurements'].set_index(['param', 'device #', 'chip #', 'lot #'])
     deg_data['sample #'] = deg_data.index
     deg_data['sample #'] = deg_data['sample #'].astype('string')
     test_data['Measurements'] = deg_data.reset_index()

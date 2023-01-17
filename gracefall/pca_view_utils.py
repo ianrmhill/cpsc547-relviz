@@ -10,8 +10,8 @@ def seperate_ts(ms):
         t_series (dict): a dict of with seperated time series. where t_series[k][i] referes to the ith time series
     """
     t_series = {'param': [],
-                "circuit #": [],
                 "device #": [],
+                "chip #": [],
                 "lot #": [],
                 "sample #":[],
                 "aggtype":[]}
@@ -24,8 +24,8 @@ def seperate_ts(ms):
             assert df.time.unique().shape[0] == len(df)
 
             t_series['param'].append(df['param'].iloc[0])
-            t_series["circuit #"].append(df["circuit #"].iloc[0])
             t_series["device #"].append(df["device #"].iloc[0])
+            t_series["chip #"].append(df["chip #"].iloc[0])
             t_series["lot #"].append(df["lot #"].iloc[0])
             t_series["sample #"].append(df["sample #"].iloc[0])
             t_series["aggtype"].append(df["aggtype"].iloc[0])
