@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=66.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["gracefall"]
+
+[project]
+name = "gracefall"
+dynamic = ["version", "dependencies"]
+authors = [
+  { name="Ian Hill", email="ianrmhill@gmail.com" },
+  { name="Matthew Tang", email="cnimaiv@gmail.com" },
+]
+description = "Visualization generators for analyzing degradation data, particularly for integrated circuit wear-out"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 3 - Alpha",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "gracefall.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+"Homepage" = "https://github.com/ianrmhill/gracefall"
+
+[tool.ruff]
+line-length = 120
+ignore = ["F403", "F405", "E402"]

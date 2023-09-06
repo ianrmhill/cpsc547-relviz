@@ -13,5 +13,5 @@ def load_gerabaldi_report(file: str = None):
         raise Exception('No report to load specified')
     # Convert the pandas dataframes
     json_rprt['Measurements'] = pd.read_json(json_rprt['Measurements'])
-    json_rprt['Stress Summary'] = pd.read_json(json_rprt['Stress Summary'])
+    json_rprt['Test Summary'] = pd.read_json(json_rprt['Test Summary'])
     return json_rprt
